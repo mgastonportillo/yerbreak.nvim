@@ -1,5 +1,3 @@
-local mate = {
-	{},
-}
+local mate = {}
 
 return mate

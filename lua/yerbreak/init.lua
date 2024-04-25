@@ -16,7 +16,7 @@ local create_commands = function()
 		else
 			api.stop()
 		end
-	end, {})
+	end, { desc = "Toggle Yerbreak" })
 end
 
 M.setup = function(opts)

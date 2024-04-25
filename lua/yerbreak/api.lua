@@ -3,8 +3,8 @@ local utils = require("yerbreak.utils")
 
 local M = {}
 
-local set_status = function()
-	config.status = not config.status
+local set_status = function(new_status)
+	config.status = new_status
 end
 
 M.get_status = function()
@@ -12,13 +12,13 @@ M.get_status = function()
 end
 
 M.start = function()
-	set_status()
+	set_status(not config.status)
 	utils.open_float()
 	print("Yerbreak is on :)")
 end
 
 M.stop = function()
-	set_status()
+	set_status(not config.status)
 	utils.close_float()
 end
 
