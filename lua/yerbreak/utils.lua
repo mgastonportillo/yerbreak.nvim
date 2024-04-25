@@ -51,11 +51,15 @@ M.open_float = function()
 
 	local update_content
 	update_content = function()
-		content = pick_random_frame(ascii_tbl)
-		local new_win_opts = buffer_opts(get_size(content))
-		vim.api.nvim_win_set_config(win_id, new_win_opts)
-		vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, content)
-		vim.defer_fn(update_content, 5000)
+		for _, win in ipairs(vim.api.nvim_list_wins()) do
+			if win == win_id then
+				content = pick_random_frame(ascii_tbl)
+				local new_win_opts = buffer_opts(get_size(content))
+				vim.api.nvim_win_set_config(win_id, new_win_opts)
+				vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, content)
+				vim.defer_fn(update_content, 2000)
+			end
+		end
 	end
 
 	update_content()
