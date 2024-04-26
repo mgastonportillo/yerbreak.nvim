@@ -5,8 +5,8 @@ M.status = false
 
 ---@type YerbreakConfig
 local defaults = {
-	ascii_table = "op",
-	delay = 10000,
+	ascii_table = "mate",
+	delay = 200,
 	border = "rounded",
 }
 

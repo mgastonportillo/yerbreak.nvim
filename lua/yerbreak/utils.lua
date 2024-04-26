@@ -8,6 +8,15 @@ local get_table = function(opts)
 	end
 end
 
+local is_named_table = function(tbl)
+	for key in pairs(tbl) do
+		if type(key) ~= "number" then
+			return true
+		end
+	end
+	return false
+end
+
 local get_frame_size = function(frame)
 	local width = #frame[1] / 3
 	local height = math.min(32, #frame)
@@ -18,7 +27,6 @@ local get_win_opts = function(opts, frame)
 	local frame_width, frame_height = get_frame_size(frame)
 	local ui_height = vim.api.nvim_list_uis()[1].height
 	local ui_width = vim.api.nvim_list_uis()[1].width
-
 	return {
 		relative = "editor",
 		width = frame_width,
@@ -32,20 +40,32 @@ local get_win_opts = function(opts, frame)
 	}
 end
 
-local prev_frame = nil
-local get_random_frame = function(frames_tbl)
-	local keys = vim.tbl_keys(frames_tbl)
-	local random_key
-	repeat
-		random_key = keys[math.random(#keys)]
-	until frames_tbl[random_key] ~= prev_frame
-	return frames_tbl[random_key]
+local current_index = 0
+local get_index = function(tbl)
+	-- "onepiece"
+	if is_named_table(tbl) == true then
+		local keys = vim.tbl_keys(tbl)
+		local next_index
+		repeat
+			next_index = keys[math.random(#keys)]
+		until next_index ~= current_index and next_index ~= "name"
+		return next_index
+	-- "mate"
+	else
+		if current_index >= 9 or current_index == nil then
+			current_index = 1
+			return current_index
+		end
+		local next_index = current_index + 1
+		current_index = next_index
+		return current_index
+	end
 end
 
 local win_id = 0
 M.open_float = function(opts)
 	local ascii_tbl = get_table(opts)
-	local frame = get_random_frame(ascii_tbl)
+	local frame = ascii_tbl[get_index(ascii_tbl)]
 	local win_options = get_win_opts(opts, frame)
 	local new_buffer = vim.api.nvim_create_buf(false, true)
 	win_id = vim.api.nvim_open_win(new_buffer, true, win_options)
@@ -61,10 +81,9 @@ M.open_float = function(opts)
 	vim.api.nvim_win_set_option(win_id, "cursorline", false)
 	vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
 	vim.api.nvim_win_set_option(win_id, "scrollbind", false)
-
+	-- Disable mouse-wheel scrolling
 	Void = function() end
 	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
-
 	for _, action in ipairs(mouse_actions) do
 		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.Void()<CR>", {
 			silent = true,
@@ -78,13 +97,13 @@ M.open_float = function(opts)
 			-- Execute code only if win_id is open
 			if win == win_id and bufnr ~= nil then
 				-- Store prev frame
-				prev_frame = frame
-				frame = get_random_frame(ascii_tbl)
+				frame = ascii_tbl[get_index(ascii_tbl)]
 				local new_win_options = get_win_opts(opts, frame)
 				vim.api.nvim_win_set_config(win_id, new_win_options)
 				vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, frame)
 				-- Recursively pick a new frame
 				vim.defer_fn(update_frame, opts.delay)
+				break
 			end
 		end
 	end
@@ -99,7 +118,6 @@ M.open_float = function(opts)
 			print("Back to work >:(")
 		end,
 	})
-
 	return new_buffer
 end
 
