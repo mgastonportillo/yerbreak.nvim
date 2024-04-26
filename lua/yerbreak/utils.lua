@@ -81,6 +81,12 @@ M.open_float = function(opts)
 	vim.api.nvim_win_set_option(win_id, "cursorline", false)
 	vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
 	vim.api.nvim_win_set_option(win_id, "scrollbind", false)
+	-- Hide cursor in float window
+	vim.cmd([[
+    hi Cursor blend=100
+    set guicursor+=a:Cursor/lCursor
+  ]])
+
 	-- Disable mouse-wheel scrolling
 	Void = function() end
 	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
@@ -110,14 +116,22 @@ M.open_float = function(opts)
 
 	update_frame()
 
-	-- Display exit message
-	vim.api.nvim_create_autocmd("BufUnload", {
+	local autocmd = vim.api.nvim_create_autocmd
+	local augroup = vim.api.nvim_create_augroup
+
+	autocmd("BufLeave", {
 		pattern = "yerbreak",
-		group = vim.api.nvim_create_augroup("yerbreak_unload", { clear = true }),
+		group = augroup("yerbreak_close", { clear = true }),
 		callback = function()
+			-- Restore cursor
+			vim.cmd([[
+        hi Cursor blend=99
+        set guicursor-=a:Cursor/lCursor
+      ]])
 			print("Back to work >:(")
 		end,
 	})
+
 	return new_buffer
 end
 
