@@ -12,13 +12,13 @@ M.get_status = function()
 end
 
 M.start = function()
-	set_status(not config.status)
-	utils.open_float()
+	set_status(true)
+	utils.open_float(config.options)
 	print("Yerbreak time! :)")
 end
 
 M.stop = function()
-	set_status(not config.status)
+	set_status(false)
 	utils.close_float()
 end
 

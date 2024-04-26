@@ -1,7 +1,5 @@
 local M = {}
 
-M.namespace = vim.api.nvim_create_namespace("Yerbreak")
-
 ---@type boolean
 M.status = false
 
@@ -15,7 +13,8 @@ local defaults = {
 ---@type YerbreakConfig
 M.options = {}
 
-function M.setup(opts)
+---@param opts? YerbreakConfig
+M.setup = function(opts)
 	opts = opts or {}
 	M.options = vim.tbl_deep_extend("force", defaults, opts)
 end

@@ -15,9 +15,12 @@ local create_cmds = function()
 end
 
 ---@param opts? YerbreakConfig
-M.setup = function(opts)
+local setup = function(opts)
 	config.setup(opts)
 	create_cmds()
 end
+
+---@type fun(opts: YerbreakConfig)
+M.setup = setup
 
 return M
