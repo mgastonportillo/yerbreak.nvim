@@ -14,7 +14,7 @@ end
 M.start = function()
 	set_status(not config.status)
 	utils.open_float()
-	print("Yerbreak is on :)")
+	print("Yerbreak time! :)")
 end
 
 M.stop = function()

@@ -1,15 +1,10 @@
 local M = {}
 
 local api = require("yerbreak.api")
+local config = require("yerbreak.config")
 local cmd = vim.api.nvim_create_user_command
 
-local update_config = function(opts)
-	local config = require("yerbreak.config")
-	opts = opts or {}
-	config.settings = vim.tbl_extend("force", config.settings, opts)
-end
-
-local create_commands = function()
+local create_cmds = function()
 	cmd("Yerbreak", function()
 		if api.get_status() == false then
 			api.start()
@@ -19,9 +14,10 @@ local create_commands = function()
 	end, { desc = "Toggle Yerbreak" })
 end
 
+---@param opts? YerbreakConfig
 M.setup = function(opts)
-	update_config(opts)
-	create_commands()
+	config.setup(opts)
+	create_cmds()
 end
 
 return M
