@@ -96,8 +96,6 @@ M.open_float = function(opts)
 		})
 	end
 
-	print()
-
 	local update_frame
 	update_frame = function()
 		if vim.api.nvim_buf_is_loaded(bufnr) == true then
@@ -112,22 +110,12 @@ M.open_float = function(opts)
 
 	update_frame()
 
-	local autocmd = vim.api.nvim_create_autocmd
-	local augroup = vim.api.nvim_create_augroup
-
-	autocmd("BufLeave", {
-		pattern = "yerbreak",
-		group = augroup("yerbreak_close", { clear = true }),
-		callback = function()
-			vim.notify(" Back to work...", 3, { icon = "😒", timeout = 500 })
-		end,
-	})
-
 	return winnr
 end
 
 M.close_float = function(winnr)
 	vim.api.nvim_win_close(winnr, true)
+	vim.notify(" Back to work...", 3, { icon = "😒", timeout = 500 })
 	-- Restore cursor
 	vim.cmd([[
     hi Cursor blend=99
