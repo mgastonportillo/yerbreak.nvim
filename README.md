@@ -1,6 +1,6 @@
 # 🧉 Yerbreak
 
-![Yerbreak](https://github.com/mgastonportillo/yerbreak.nvim/assets/106234166/a7ec01ed-57b4-4b5f-9f58-4c8ebc1b19fd)
+https://github.com/mgastonportillo/yerbreak.nvim/assets/106234166/3810a70e-e428-4af7-bd15-b0963e89ea10
 
 > Make a pause, take a deep breath and drink some mates. Now you're ready to get back to work.
 
