@@ -1,5 +1,7 @@
 local M = {}
 
+YerbreakVoid = function() end
+
 local get_table = function(opts)
 	if opts.ascii_table == "mate" then
 		return require("yerbreak.ascii.mate")
@@ -54,33 +56,31 @@ local get_index = function(tbl)
 	else
 		if current_index >= 9 or current_index == nil then
 			current_index = 1
-			return current_index
+			return 1
 		end
 		local next_index = current_index + 1
 		current_index = next_index
-		return current_index
+		return next_index
 	end
 end
 
-local win_id = 0
 M.open_float = function(opts)
 	local ascii_tbl = get_table(opts)
 	local frame = ascii_tbl[get_index(ascii_tbl)]
 	local win_options = get_win_opts(opts, frame)
-	local new_buffer = vim.api.nvim_create_buf(false, true)
-	win_id = vim.api.nvim_open_win(new_buffer, true, win_options)
-	local bufnr = vim.fn.bufnr()
+	local bufnr = vim.api.nvim_create_buf(false, true)
+	local winnr = vim.api.nvim_open_win(bufnr, true, win_options)
 
 	vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, frame)
 	vim.api.nvim_buf_set_name(bufnr, "yerbreak")
 	-- Effectively erase the buffer from memory
 	vim.api.nvim_buf_set_option(bufnr, "bufhidden", "delete")
 	-- Prevent scrolling
-	vim.api.nvim_win_set_option(win_id, "scrolloff", 999)
-	vim.api.nvim_win_set_option(win_id, "wrap", false)
-	vim.api.nvim_win_set_option(win_id, "cursorline", false)
-	vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
-	vim.api.nvim_win_set_option(win_id, "scrollbind", false)
+	vim.api.nvim_win_set_option(winnr, "scrolloff", 999)
+	vim.api.nvim_win_set_option(winnr, "wrap", false)
+	vim.api.nvim_win_set_option(winnr, "cursorline", false)
+	vim.api.nvim_win_set_option(winnr, "cursorcolumn", false)
+	vim.api.nvim_win_set_option(winnr, "scrollbind", false)
 	-- Hide cursor in float window
 	vim.cmd([[
     hi Cursor blend=100
@@ -88,29 +88,25 @@ M.open_float = function(opts)
   ]])
 
 	-- Disable mouse-wheel scrolling
-	Void = function() end
 	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
 	for _, action in ipairs(mouse_actions) do
-		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.Void()<CR>", {
+		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.YerbreakVoid()<CR>", {
 			silent = true,
 			noremap = true,
 		})
 	end
 
+	print()
+
 	local update_frame
 	update_frame = function()
-		for _, win in ipairs(vim.api.nvim_list_wins()) do
-			-- Execute code only if win_id is open
-			if win == win_id and bufnr ~= nil then
-				-- Store prev frame
-				frame = ascii_tbl[get_index(ascii_tbl)]
-				local new_win_options = get_win_opts(opts, frame)
-				vim.api.nvim_win_set_config(win_id, new_win_options)
-				vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, frame)
-				-- Recursively pick a new frame
-				vim.defer_fn(update_frame, opts.delay)
-				break
-			end
+		if vim.api.nvim_buf_is_loaded(bufnr) == true then
+			frame = ascii_tbl[get_index(ascii_tbl)]
+			local new_win_options = get_win_opts(opts, frame)
+			vim.api.nvim_win_set_config(winnr, new_win_options)
+			vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, frame)
+			-- Recursively pick a new frame
+			vim.defer_fn(update_frame, opts.delay)
 		end
 	end
 
@@ -123,20 +119,20 @@ M.open_float = function(opts)
 		pattern = "yerbreak",
 		group = augroup("yerbreak_close", { clear = true }),
 		callback = function()
-			-- Restore cursor
-			vim.cmd([[
-        hi Cursor blend=99
-        set guicursor-=a:Cursor/lCursor
-      ]])
-			print("Back to work >:(")
+			vim.notify(" Back to work...", 3, { icon = "😒", timeout = 500 })
 		end,
 	})
 
-	return new_buffer
+	return winnr
 end
 
-M.close_float = function()
-	vim.api.nvim_win_close(win_id, true)
+M.close_float = function(winnr)
+	vim.api.nvim_win_close(winnr, true)
+	-- Restore cursor
+	vim.cmd([[
+    hi Cursor blend=99
+    set guicursor-=a:Cursor/lCursor
+  ]])
 end
 
 return M
