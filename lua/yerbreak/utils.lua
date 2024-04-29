@@ -1,6 +1,11 @@
-local M = {}
+YBVOID = function() end
 
-YerbreakVoid = function() end
+local M = {}
+local config = require("yerbreak.config")
+
+M.set_status = function(new_status)
+	config.status = new_status
+end
 
 local get_table = function(opts)
 	if opts.ascii_table == "mate" then
@@ -26,6 +31,7 @@ local get_frame_size = function(frame)
 end
 
 local get_win_opts = function(opts, frame)
+	M.set_status(true)
 	local frame_width, frame_height = get_frame_size(frame)
 	local ui_height = vim.api.nvim_list_uis()[1].height
 	local ui_width = vim.api.nvim_list_uis()[1].width
@@ -87,10 +93,14 @@ M.open_float = function(opts)
     set guicursor+=a:Cursor/lCursor
   ]])
 
+	vim.keymap.set("n", "<ESC>", function()
+		M.close_float(winnr)
+	end, { buffer = bufnr })
+
 	-- Disable mouse-wheel scrolling
 	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
 	for _, action in ipairs(mouse_actions) do
-		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.YerbreakVoid()<CR>", {
+		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.YBVOID()<CR>", {
 			silent = true,
 			noremap = true,
 		})
@@ -114,6 +124,7 @@ M.open_float = function(opts)
 end
 
 M.close_float = function(winnr)
+	M.set_status(false)
 	vim.api.nvim_win_close(winnr, true)
 	vim.notify(" Back to work...", 3, { icon = "😒", timeout = 500 })
 	-- Restore cursor
