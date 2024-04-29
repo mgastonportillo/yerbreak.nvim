@@ -9,7 +9,10 @@ Lazy:
 ```lua
 {
   "mgastonportillo/yerbreak.nvim",
-  dependencies = { "levouh/tint.nvim" } -- optional: dim the inactive buffers
+  dependencies = {
+    "levouh/tint.nvim", -- optional: dim the inactive buffers
+    "rcarriga/nvim-notify", -- optional: customise notifications
+  },
   event = "VeryLazy",
   config = function(_ opts)
     require("yerbreak").setup(opts)
@@ -21,7 +24,7 @@ Defaults:
 ```lua
 opts = {
   ascii_table = "mate" -- "mate" | "op"
-  delay = 5000, -- integer (ms)
+  delay = 500, -- integer (ms)
   border = "rounded", -- "rounded" | "single" | "none" | "double" | "solid" | "shadow"
 }
 ```
