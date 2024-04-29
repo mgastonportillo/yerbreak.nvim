@@ -6,10 +6,10 @@ local cmd = vim.api.nvim_create_user_command
 
 local create_cmds = function()
 	cmd("Yerbreak", function()
-		if api.get_status() == false then
-			api.start()
-		else
+		if api.get_status() then
 			api.stop()
+		else
+			api.start()
 		end
 	end, { desc = "Toggle Yerbreak" })
 end

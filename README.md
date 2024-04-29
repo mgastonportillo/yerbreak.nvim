@@ -9,6 +9,7 @@ Lazy:
 ```lua
 {
   "mgastonportillo/yerbreak.nvim",
+  dependencies = { "levouh/tint.nvim" } -- optional: dim the inactive buffers
   event = "VeryLazy",
   config = function(_ opts)
     require("yerbreak").setup(opts)
