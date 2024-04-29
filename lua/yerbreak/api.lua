@@ -19,7 +19,8 @@ local close_float = function(winnr)
     set guicursor-=a:Cursor/lCursor
   ]])
 
-	vim.notify(" Back to work...", 3, { icon = "😒", timeout = 500 })
+	vim.notify.dismiss()
+	vim.notify(" Back to work...", vim.log.levels.WARN, { icon = "😒", timeout = 500, render = "compact" })
 end
 
 local open_float = function(opts)
@@ -80,7 +81,8 @@ local open_float = function(opts)
 		close_float(winnr)
 	end, { buffer = bufnr })
 
-	vim.notify(" Yerbreak time!", 2, { icon = "🧉", timeout = 500 })
+	vim.notify.dismiss()
+	vim.notify(" Yerbreak time!", vim.log.levels.INFO, { icon = "🧉", timeout = 500, render = "compact" })
 
 	return winnr
 end

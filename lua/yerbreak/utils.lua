@@ -45,7 +45,7 @@ M.get_win_opts = function(opts, frame)
 		col = (ui_width - frame_width) * 0.5,
 		style = "minimal",
 		border = opts.border,
-		zindex = 1,
+		zindex = 49,
 	}
 end
 
