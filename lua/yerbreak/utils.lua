@@ -71,8 +71,65 @@ M.get_index = function(tbl)
 	end
 end
 
+M.notify = function(icon, msg, type)
+	---@diagnostic disable-next-line
+	vim.notify.dismiss()
+	vim.notify(msg, type, { icon = icon, timeout = 500, render = "compact" })
+end
+
+M.toggle_tint = function()
+	local no_tint = require("tint")
+	-- Dim float if tint is available
+	if no_tint == true then
+		return
+	end
+
+	require("tint").setup(config.options.tint)
+	require("tint").enable()
+end
+
 M.set_status = function(new_status)
 	config.status = new_status
+end
+
+M.set_buf_opts = function(bufnr, name, lines)
+	vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
+	vim.api.nvim_buf_set_name(bufnr, name)
+	-- Effectively erase the buffer from memory
+	vim.api.nvim_buf_set_option(bufnr, "bufhidden", "delete")
+	vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>b", "<cmd><CR>", { noremap = true })
+
+	-- Disable mouse-wheel scrolling
+	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
+	for _, action in ipairs(mouse_actions) do
+		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.YBVOID()<CR>", {
+			silent = true,
+			noremap = true,
+		})
+	end
+end
+
+M.set_win_opts = function(filetype)
+	local opt = vim.opt_local
+	opt.scrolloff = 999
+	opt.buflisted = false
+	opt.buftype = "nofile"
+	opt.number = false
+	opt.list = false
+	opt.wrap = false
+	opt.relativenumber = false
+	opt.cursorline = false
+	opt.scrollbind = false
+	opt.cursorcolumn = false
+	opt.colorcolumn = "0"
+	opt.foldcolumn = "0"
+	opt.filetype = filetype
+
+	-- Hide cursor
+	vim.cmd([[
+    hi Cursor blend=100
+    set guicursor+=a:Cursor/lCursor
+  ]])
 end
 
 M.tint_config = {
