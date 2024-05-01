@@ -1,6 +1,5 @@
 local M = {}
 local config = require("yerbreak.config")
-local options = config.options
 
 local buf_map = function(bufnr, mode, lhs, rhs, custom_opts)
 	local map_opts = { noremap = true, silent = true }
@@ -19,8 +18,8 @@ local is_named_table = function(tbl)
 	return false
 end
 
-local has_border = function()
-	if options.border ~= "none" then
+local has_border = function(opts)
+	if opts.border ~= "none" then
 		return true
 	else
 		return false
@@ -50,8 +49,8 @@ M.get_win_opts = function(opts, frame)
 		width = frame_width,
 		height = frame_height,
 		-- center buffer
-		row = (ui_height - frame_height) * (has_border() and 0.4 or 0.5),
-		col = (ui_width - frame_width) * 0.5,
+		row = (ui_height - frame_height) * 0.5 - (has_border(opts) and 1 or 0),
+		col = (ui_width - frame_width) * 0.5 - (has_border(opts) and 1 or 0),
 		style = "minimal",
 		border = opts.border,
 		zindex = 49,
@@ -118,7 +117,7 @@ M.set_buf_opts = function(bufnr, name, lines)
 	for _, lhs in ipairs(quit_actions) do
 		buf_map(bufnr, "n", lhs, "<cmd>lua require('yerbreak.api').stop()<CR>")
 	end
-	local void_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>", "<leader>b" }
+	local void_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
 	for _, lhs in ipairs(void_actions) do
 		buf_map(bufnr, "n", lhs, "<cmd><CR>")
 	end
