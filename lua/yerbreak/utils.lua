@@ -1,5 +1,14 @@
 local M = {}
 local config = require("yerbreak.config")
+local options = config.options
+
+local buf_map = function(bufnr, mode, lhs, rhs, custom_opts)
+	local map_opts = { noremap = true, silent = true }
+	if custom_opts then
+		map_opts = vim.tbl_extend("force", map_opts, custom_opts)
+	end
+	vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, map_opts)
+end
 
 local is_named_table = function(tbl)
 	for key in pairs(tbl) do
@@ -11,7 +20,7 @@ local is_named_table = function(tbl)
 end
 
 local has_border = function()
-	if config.options.border ~= "none" then
+	if options.border ~= "none" then
 		return true
 	else
 		return false
@@ -57,17 +66,19 @@ M.get_index = function(tbl)
 		local next_index
 		repeat
 			next_index = keys[math.random(#keys)]
-		until next_index ~= current_index and next_index ~= "name"
+		until next_index ~= current_index
 		return next_index
 	-- "mate"
 	else
 		if current_index >= 9 or current_index == nil then
-			current_index = 1
-			return 1
+			local next_index = 1
+			current_index = next_index
+			return next_index
+		else
+			local next_index = current_index + 1
+			current_index = next_index
+			return next_index
 		end
-		local next_index = current_index + 1
-		current_index = next_index
-		return next_index
 	end
 end
 
@@ -77,53 +88,40 @@ M.notify = function(icon, msg, type)
 	vim.notify(msg, type, { icon = icon, timeout = 500, render = "compact" })
 end
 
-M.toggle_tint = function()
-	local no_tint = require("tint")
-	-- Dim float if tint is available
-	if no_tint == true then
-		return
-	end
-
-	require("tint").setup(config.options.tint)
-	require("tint").enable()
-end
-
 M.set_status = function(new_status)
 	config.status = new_status
 end
 
 M.set_buf_opts = function(bufnr, name, lines)
-	vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
-	vim.api.nvim_buf_set_name(bufnr, name)
-	-- Effectively erase the buffer from memory
-	vim.api.nvim_buf_set_option(bufnr, "bufhidden", "delete")
-	vim.api.nvim_buf_set_keymap(bufnr, "n", "<leader>b", "<cmd><CR>", { noremap = true })
-
-	-- Disable mouse-wheel scrolling
-	local mouse_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
-	for _, action in ipairs(mouse_actions) do
-		vim.api.nvim_buf_set_keymap(bufnr, "n", action, "<cmd>call v:lua.YBVOID()<CR>", {
-			silent = true,
-			noremap = true,
-		})
-	end
-end
-
-M.set_win_opts = function(filetype)
 	local opt = vim.opt_local
+
 	opt.scrolloff = 999
-	opt.buflisted = false
-	opt.buftype = "nofile"
 	opt.number = false
-	opt.list = false
+	-- opt.list = false
 	opt.wrap = false
-	opt.relativenumber = false
 	opt.cursorline = false
 	opt.scrollbind = false
 	opt.cursorcolumn = false
+	opt.buflisted = false
+	opt.buftype = "nofile"
+	opt.bufhidden = "delete"
 	opt.colorcolumn = "0"
 	opt.foldcolumn = "0"
-	opt.filetype = filetype
+	-- Effectively erase the buffer from memory once hidden
+	opt.filetype = name
+
+	vim.api.nvim_buf_set_name(bufnr, name)
+	vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
+
+	-- Keymaps local to buffer
+	local quit_actions = { "q", "<ESC>" }
+	for _, lhs in ipairs(quit_actions) do
+		buf_map(bufnr, "n", lhs, "<cmd>lua require('yerbreak.api').stop()<CR>")
+	end
+	local void_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>", "<leader>b" }
+	for _, lhs in ipairs(void_actions) do
+		buf_map(bufnr, "n", lhs, "<cmd><CR>")
+	end
 
 	-- Hide cursor
 	vim.cmd([[
@@ -131,17 +129,5 @@ M.set_win_opts = function(filetype)
     set guicursor+=a:Cursor/lCursor
   ]])
 end
-
-M.tint_config = {
-	tint = -25,
-	saturation = 0.4,
-	transforms = require("tint").transforms.SATURATE_TINT,
-	tint_background_colors = true,
-	highlight_ignore_patterns = { "WinSeparator", "Status.*" },
-	window_ignore_function = function(winid)
-		local floating = vim.api.nvim_win_get_config(winid).relative ~= ""
-		return floating
-	end,
-}
 
 return M

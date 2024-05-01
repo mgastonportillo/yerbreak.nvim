@@ -1,33 +1,27 @@
-YBVOID = function() end
-
 local M = {}
 local config = require("yerbreak.config")
 local utils = require("yerbreak.utils")
 
 local close_float = function(winnr)
-	vim.api.nvim_win_close(winnr, true)
 	utils.set_status(false)
-	utils.toggle_tint()
+	vim.api.nvim_win_close(winnr, true)
+	utils.notify(" 😒", " Back to work", vim.log.levels.WARN)
 	-- Restore cursor
 	vim.cmd([[
     hi Cursor blend=99
     set guicursor-=a:Cursor/lCursor
   ]])
-
-	utils.notify(" 😒", " Back to work", vim.log.levels.WARN)
 end
 
 local open_float = function(opts)
+	utils.set_status(true)
 	local ascii_tbl = utils.get_table(opts)
 	local lines = ascii_tbl[utils.get_index(ascii_tbl)]
 	local win_opts = utils.get_win_opts(opts, lines)
 	local bufnr = vim.api.nvim_create_buf(false, true)
 	local winnr = vim.api.nvim_open_win(bufnr, true, win_opts)
-
-	utils.set_status(true)
-	utils.toggle_tint()
 	utils.set_buf_opts(bufnr, "yerbreak", lines)
-	utils.set_win_opts("yerbreak")
+	utils.notify(" 🧉", " Yerbreak time!", vim.log.levels.INFO)
 
 	-- TODO: move function definition to utils
 	local update_frame
@@ -41,14 +35,7 @@ local open_float = function(opts)
 			vim.defer_fn(update_frame, opts.delay)
 		end
 	end
-
 	update_frame()
-
-	vim.keymap.set("n", "<ESC>", function()
-		close_float(winnr)
-	end, { buffer = bufnr })
-
-	utils.notify(" 🧉", " Yerbreak time!", vim.log.levels.INFO)
 
 	return winnr
 end
