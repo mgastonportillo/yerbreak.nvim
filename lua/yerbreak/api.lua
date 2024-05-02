@@ -3,8 +3,10 @@ local config = require("yerbreak.config")
 local utils = require("yerbreak.utils")
 
 local close_float = function(winnr)
+	if vim.api.nvim_win_is_valid(winnr) then
+		vim.api.nvim_win_close(winnr, true)
+	end
 	utils.set_status(false)
-	vim.api.nvim_win_close(winnr, true)
 	utils.notify(" 😒", " Back to work", vim.log.levels.WARN)
 	-- Restore cursor
 	vim.cmd([[
@@ -22,6 +24,18 @@ local open_float = function(opts)
 	local winnr = vim.api.nvim_open_win(bufnr, true, win_opts)
 	utils.set_buf_opts(bufnr, "yerbreak", lines)
 	utils.notify(" 🧉", " Yerbreak time!", vim.log.levels.INFO)
+
+	vim.api.nvim_create_autocmd({ "BufHidden", "BufUnload" }, {
+		group = vim.api.nvim_create_augroup("AutoCloseYerbreak", { clear = true }),
+		buffer = bufnr,
+		callback = function()
+			-- Schedule is done because otherwise the window won't actually close in some cases,
+			-- for example if you're loading another buffer into it (idea taken from Mason)
+			vim.schedule(function()
+				M.stop()
+			end)
+		end,
+	})
 
 	-- TODO: move function definition to utils
 	local update_frame
