@@ -117,7 +117,15 @@ M.set_buf_opts = function(bufnr, name, lines)
 	for _, lhs in ipairs(quit_actions) do
 		buf_map(bufnr, "n", lhs, "<cmd>lua require('yerbreak.api').stop()<CR>")
 	end
-	local void_actions = { "<ScrollWheelUp>", "<ScrollWheelDown>" }
+	local void_actions = {
+		"<ScrollWheelUp>",
+		"<ScrollWheelDown>",
+		"<LeftMouse>",
+		"<2-LeftMouse>",
+		"<3-LeftMouse>",
+		"<4-LeftMouse>",
+		"v",
+	}
 	for _, lhs in ipairs(void_actions) do
 		buf_map(bufnr, "n", lhs, "<cmd><CR>")
 	end
