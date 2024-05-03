@@ -1,6 +1,6 @@
 # 🧉 Yerbreak
 
-https://github.com/mgastonportillo/yerbreak.nvim/assets/106234166/3810a70e-e428-4af7-bd15-b0963e89ea10
+https://github.com/mgastonportillo/yerbreak.nvim/assets/106234166/fd992095-2212-4e33-bbd6-c5afd4049463
 
 > Make a pause, take a deep breath and drink some mates. Now you're ready to get back to work.
 
@@ -29,3 +29,6 @@ opts = {
 ## Commands
 
 `:Yerbreak` Toggle Yerbreak on/off
+
+## Credits
+`@MaximilianLloyd` for the One Piece ascii tables
