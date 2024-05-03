@@ -1,6 +1,7 @@
-local M = {}
 local config = require("yerbreak.config")
 local utils = require("yerbreak.utils")
+
+local M = {}
 
 local close_float = function(winnr)
 	if vim.api.nvim_win_is_valid(winnr) then

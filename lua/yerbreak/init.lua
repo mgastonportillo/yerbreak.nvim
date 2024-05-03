@@ -1,7 +1,8 @@
+local config = require("yerbreak.config")
+local api = require("yerbreak.api")
+
 local M = {}
 local cmd = vim.api.nvim_create_user_command
-local api = require("yerbreak.api")
-local config = require("yerbreak.config")
 
 local create_cmds = function()
 	cmd("Yerbreak", function()
