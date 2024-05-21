@@ -1,5 +1,4 @@
 local config = require("yerbreak.config")
-
 local M = {}
 
 local buf_map = function(bufnr, mode, lhs, rhs, custom_opts)
