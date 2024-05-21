@@ -11,9 +11,10 @@ Lazy:
   "mgastonportillo/yerbreak.nvim",
   dependencies = { "rcarriga/nvim-notify" }, -- optional: custom notifications
   event = "VeryLazy",
-  config = function(_ opts)
-    require("yerbreak").setup(opts)
+  init = function()
+    -- any mappings should go here
   end
+  opts = {}, -- or config = true
 }
 ```
 ## Configuration
@@ -21,7 +22,7 @@ Defaults:
 ```lua
 opts = {
   ascii_table = "mate" -- "mate" | "op"
-  delay = 500, -- integer (ms)
+  delay = 200, -- integer (ms)
   border = "rounded", -- "rounded" | "single" | "none" | "double" | "solid" | "shadow"
 }
 ```
